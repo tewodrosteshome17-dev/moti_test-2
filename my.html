@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Moti Engineering PLC - Employee Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        moti: {
+                            blue: '#0f172a', // Slate 900
+                            gold: '#f59e0b', // Amber 500
+                            light: '#f1f5f9', // Slate 100
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+
+    <!-- Navigation -->
+    <nav id="navbar" class="bg-moti-blue text-white shadow-lg hidden">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div
+                    class="w-10 h-10 bg-moti-gold rounded-lg flex items-center justify-center text-moti-blue font-bold text-xl">
+                    M</div>
+                <span class="text-xl font-bold tracking-wide">Moti Engineering PLC</span>
+            </div>
+            <div class="hidden md:flex items-center space-x-6">
+                <button onclick="router.navigate('dashboard')"
+                    class="hover:text-moti-gold transition">Dashboard</button>
+                <button onclick="router.navigate('leave')" class="hover:text-moti-gold transition">Annual Leave</button>
+                <button onclick="router.navigate('ot')" class="hover:text-moti-gold transition">Overtime</button>
+                <button id="nav-admin-link" onclick="router.navigate('admin')"
+                    class="hidden hover:text-moti-gold transition text-moti-gold font-semibold">Admin Panel</button>
+                <button onclick="auth.logout()"
+                    class="bg-red-500 hover:bg-red-600 px-4 py-2 rounded text-sm font-medium transition">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow container mx-auto px-4 py-8">
+
+        <!-- LOGIN VIEW -->
+        <div id="view-login" class="view max-w-md mx-auto mt-10 fade-in">
+            <div class="bg-white p-8 rounded-2xl shadow-xl border-t-4 border-moti-gold">
+                <div class="text-center mb-8">
+                    <div
+                        class="w-16 h-16 bg-moti-blue text-moti-gold rounded-xl mx-auto flex items-center justify-center text-3xl font-bold mb-4">
+                        M</div>
+                    <h2 class="text-2xl font-bold text-slate-800">Employee Login</h2>
+                    <p class="text-slate-500">Access the Moti Engineering Database</p>
+                </div>
+                <form onsubmit="auth.login(event)">
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Email Address</label>
+                        <input type="email" id="login-email"
+                            class="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-moti-gold focus:border-transparent outline-none transition"
+                            placeholder="name@moti.com" required>
+                    </div>
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Password</label>
+                        <input type="password" id="login-password"
+                            class="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-moti-gold focus:border-transparent outline-none transition"
+                            placeholder="••••••••" required>
+                    </div>
+                    <button type="submit"
+                        class="w-full bg-moti-blue text-white py-3 rounded-lg font-semibold hover:bg-slate-800 transition shadow-lg">Sign
+                        In</button>
+                </form>
+                <div class="mt-6 text-center">
+                    <p class="text-slate-600">New Employee? <button onclick="router.navigate('register')"
+                            class="text-moti-blue font-bold hover:underline">Register Here</button></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- REGISTER VIEW -->
+        <div id="view-register" class="view max-w-md mx-auto mt-10 hidden fade-in">
+            <div class="bg-white p-8 rounded-2xl shadow-xl border-t-4 border-blue-500">
+                <div class="text-center mb-8">
+                    <h2 class="text-2xl font-bold text-slate-800">Employee Registration</h2>
+                    <p class="text-slate-500">Create your secure account</p>
+                </div>
+                <form onsubmit="auth.register(event)">
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Full Name</label>
+                        <input type="text" id="reg-name"
+                            class="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none"
+                            required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Unique ID Number</label>
+                        <input type="text" id="reg-id"
+                            class="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none"
+                            placeholder="e.g., MOTI-001" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Email Address</label>
+                        <input type="email" id="reg-email"
+                            class="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none"
+                            required>
+                    </div>
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Password</label>
+                        <input type="password" id="reg-password"
+                            class="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none"
+                            required>
+                    </div>
+                    <button type="submit"
+                        class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition shadow-lg">Create
+                        Account</button>
+                </form>
+                <div class="mt-6 text-center">
+                    <p class="text-slate-600">Already registered? <button onclick="router.navigate('login')"
+                            class="text-blue-600 font-bold hover:underline">Login</button></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- DASHBOARD VIEW -->
+        <div id="view-dashboard" class="view hidden fade-in">
+            <div class="mb-8 flex justify-between items-end">
+                <div>
+                    <h1 class="text-3xl font-bold text-slate-800">Welcome, <span id="dash-name"
+                            class="text-moti-blue">User</span></h1>
+                    <p class="text-slate-500 mt-1">Here is your current status overview.</p>
+                </div>
+                <span
+                    class="bg-blue-100 text-blue-800 text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wide">Employee</span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <!-- OT Card -->
+                <div
+                    class="bg-white p-6 rounded-xl shadow-md border-l-4 border-orange-500 flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-slate-500 font-medium uppercase">Total Overtime</p>
+                        <h3 class="text-3xl font-bold text-slate-800 mt-1"><span id="dash-ot">0</span> hrs</h3>
+                    </div>
+                    <div
+                        class="w-12 h-12 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center text-xl">
+                        <i class="fa-regular fa-clock"></i>
+                    </div>
+                </div>
+                <!-- Leave Card -->
+                <div
+                    class="bg-white p-6 rounded-xl shadow-md border-l-4 border-green-500 flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-slate-500 font-medium uppercase">Annual Leave Balance</p>
+                        <h3 class="text-3xl font-bold text-slate-800 mt-1"><span id="dash-leave">0</span> days</h3>
+                    </div>
+                    <div
+                        class="w-12 h-12 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-xl">
+                        <i class="fa-regular fa-calendar-check"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <button onclick="router.navigate('ot')"
+                    class="group bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition border border-slate-100 hover:border-moti-gold text-left">
+                    <div class="flex items-center space-x-4">
+                        <div
+                            class="bg-blue-50 p-3 rounded-lg group-hover:bg-moti-gold group-hover:text-white transition">
+                            <i class="fa-solid fa-plus text-xl"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-lg text-slate-800">New OT Request</h4>
+                            <p class="text-sm text-slate-500">Submit a new overtime record.</p>
+                        </div>
+                    </div>
+                </button>
+                <button onclick="router.navigate('leave')"
+                    class="group bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition border border-slate-100 hover:border-moti-gold text-left">
+                    <div class="flex items-center space-x-4">
+                        <div
+                            class="bg-blue-50 p-3 rounded-lg group-hover:bg-moti-gold group-hover:text-white transition">
+                            <i class="fa-solid fa-plane-departure text-xl"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-lg text-slate-800">New Leave Request</h4>
+                            <p class="text-sm text-slate-500">Apply for annual leave.</p>
+                        </div>
+                    </div>
+                </button>
+            </div>
+
+            <div class="mt-8">
+                <h3 class="text-xl font-bold text-slate-800 mb-4">My Recent Requests</h3>
+                <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                    <table class="w-full text-left">
+                        <thead class="bg-slate-50 text-slate-500 text-sm uppercase">
+                            <tr>
+                                <th class="p-4">Type</th>
+                                <th class="p-4">Date</th>
+                                <th class="p-4">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="my-requests-table" class="divide-y divide-slate-100">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- OT FORM VIEW -->
+        <div id="view-ot-form" class="view hidden fade-in max-w-2xl mx-auto">
+            <div class="bg-white p-8 rounded-2xl shadow-lg">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-slate-800">Overtime Request</h2>
+                    <button onclick="router.navigate('dashboard')" class="text-slate-400 hover:text-slate-600"><i
+                            class="fa-solid fa-xmark text-xl"></i></button>
+                </div>
+                <form onsubmit="app.submitOT(event)">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-1">ID Number</label>
+                            <input type="text" id="ot-id" class="w-full px-4 py-2 rounded-lg border bg-slate-50"
+                                readonly>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-1">Hours (Number)</label>
+                            <input type="number" id="ot-hours"
+                                class="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-moti-gold outline-none"
+                                required>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Bank</label>
+                        <select id="ot-bank"
+                            class="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-moti-gold outline-none"
+                            required>
+                            <option value="">Select Bank</option>
+                            <option value="CBE">CBE (Commercial Bank of Ethiopia)</option>
+                            <option value="BOA">BOA (Bank of Abyssinia)</option>
+                            <option value="COOP">COOP (Cooperative Bank of Oromia)</option>
+                            <option value="OIB">OIB (Oromia International Bank)</option>
+                            <option value="Hibret">Hibret Bank</option>
+                            <option value="Enat">Enat Bank</option>
+                        </select>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-slate-700 mb-1">District</label>
+                        <select id="ot-district"
+                            class="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-moti-gold outline-none"
+                            required>
+                            <option value="">Select District</option>
+                            <option value="Central">Central</option>
+                            <option value="East">East</option>
+                            <option value="North">North</option>
+                            <option value="South">South</option>
+                            <option value="West">West</option>
+                        </select>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-1">Date</label>
+                            <input type="date" id="ot-date"
+                                class="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-moti-gold outline-none"
+                                required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-1">Time</label>
+                            <input type="time" id="ot-time"
+                                class="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-moti-gold outline-none"
+                                required>
+                        </div>
+                    </div>
+                    <button type="submit"
+                        class="w-full bg-moti-blue text-white py-3 rounded-lg font-semibold hover:bg-slate-800 transition">Submit
+                        Request</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- LEAVE FORM VIEW -->
+        <div id="view-leave-form" class="view hidden fade-in max-w-2xl mx-auto">
+            <div class="bg-white p-8 rounded-2xl shadow-lg">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-slate-800">Annual Leave Request</h2>
+                    <button onclick="router.navigate('dashboard')" class="text-slate-400 hover:text-slate-600"><i
+                            class="fa-solid fa-xmark text-xl"></i></button>
+                </div>
+                <form onsubmit="app.submitLeave(event)">
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Employee Name</label>
+                        <input type="text" id="leave-name" class="w-full px-4 py-2 rounded-lg border bg-slate-50"
+                            readonly>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-slate-700 mb-1">ID Number</label>
+                        <input type="text" id="leave-id" class="w-full px-4 py-2 rounded-lg border bg-slate-50"
+                            readonly>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-slate-700 mb-1">District</label>
+                        <select id="leave-district"
+                            class="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-moti-gold outline-none"
+                            required>
+                            <option value="">Select District</option>
+                            <option value="Central">Central</option>
+                            <option value="East">East</option>
+                            <option value="North">North</option>
+                            <option value="South">South</option>
+                            <option value="West">West</option>
+                        </select>
+                    </div>
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Days Requested</label>
+                        <input type="number" id="leave-days"
+                            class="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-moti-gold outline-none"
+                            required>
+                    </div>
+                    <button type="submit"
+                        class="w-full bg-moti-blue text-white py-3 rounded-lg font-semibold hover:bg-slate-800 transition">Submit
+                        Request</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- ADMIN VIEW -->
+        <div id="view-admin" class="view hidden fade-in">
+            <div class="mb-8">
+                <h1 class="text-3xl font-bold text-slate-800">Administrator Dashboard</h1>
+                <p class="text-slate-500 mt-1">Validate and manage employee requests.</p>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                <div class="p-6 border-b border-slate-100 flex justify-between items-center">
+                    <h3 class="font-bold text-lg text-slate-800">Pending Requests</h3>
+                    <span class="bg-yellow-100 text-yellow-800 text-xs font-bold px-2 py-1 rounded uppercase">Action
+                        Required</span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead class="bg-slate-50 text-slate-500 text-sm uppercase font-semibold">
+                            <tr>
+                                <th class="p-4">Employee</th>
+                                <th class="p-4">Type</th>
+                                <th class="p-4">Details</th>
+                                <th class="p-4">Status</th>
+                                <th class="p-4 text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-table" class="divide-y divide-slate-100">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="mt-8">
+                <h3 class="font-bold text-lg text-slate-800 mb-4">Registered Employees Database</h3>
+                <div class="bg-white rounded-xl shadow-sm overflow-hidden p-4">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm">
+                            <thead class="bg-slate-50 text-slate-500 uppercase">
+                                <tr>
+                                    <th class="p-3">Name</th>
+                                    <th class="p-3">ID</th>
+                                    <th class="p-3">Email</th>
+                                    <th class="p-3">OT Balance</th>
+                                    <th class="p-3">Leave Balance</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-users-table" class="divide-y divide-slate-100">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        // --- STATE MANAGEMENT ---
+        const db = {
+            users: JSON.parse(localStorage.getItem('moti_users')) || [],
+            requests: JSON.parse(localStorage.getItem('moti_requests')) || [],
+            currentUser: null,
+
+            save: () => {
+                localStorage.setItem('moti_users', JSON.stringify(db.users));
+                localStorage.setItem('moti_requests', JSON.stringify(db.requests));
+            },
+
+            seed: () => {
+                if (db.users.length === 0) {
+                    // Create Admin
+                    db.users.push({
+                        id: 'ADMIN-001',
+                        name: 'System Administrator',
+                        email: 'admin@moti.com',
+                        password: 'admin', // Simple for demo
+                        role: 'admin',
+                        ot_balance: 0,
+                        leave_balance: 0
+                    });
+                    db.save();
+                    console.log('Database seeded with admin.');
+                }
+            }
+        };
+
+        db.seed();
+
+        // --- AUTHENTICATION ---
+        const auth = {
+            login: (e) => {
+                e.preventDefault();
+                const email = document.getElementById('login-email').value;
+                const pass = document.getElementById('login-password').value;
+
+                const user = db.users.find(u => u.email === email && u.password === pass);
+
+                if (user) {
+                    db.currentUser = user;
+                    localStorage.setItem('moti_current_user', JSON.stringify(user));
+                    router.init();
+                } else {
+                    alert('Invalid credentials!');
+                }
+            },
+
+            register: (e) => {
+                e.preventDefault();
+                const name = document.getElementById('reg-name').value;
+                const id = document.getElementById('reg-id').value;
+                const email = document.getElementById('reg-email').value;
+                const pass = document.getElementById('reg-password').value;
+
+                if (db.users.find(u => u.email === email)) {
+                    alert('Email already registered!');
+                    return;
+                }
+
+                const newUser = {
+                    id, name, email, password: pass,
+                    role: 'employee',
+                    ot_balance: 0,
+                    leave_balance: 20 // Default annual leave
+                };
+
+                db.users.push(newUser);
+                db.save();
+                alert('Registration successful! Please login.');
+                router.navigate('login');
+            },
+
+            logout: () => {
+                db.currentUser = null;
+                localStorage.removeItem('moti_current_user');
+                router.navigate('login');
+            }
+        };
+
+        // --- APP LOGIC ---
+        const app = {
+            submitOT: (e) => {
+                e.preventDefault();
+                const hours = parseFloat(document.getElementById('ot-hours').value);
+                const bank = document.getElementById('ot-bank').value;
+                const district = document.getElementById('ot-district').value;
+                const date = document.getElementById('ot-date').value;
+                const time = document.getElementById('ot-time').value;
+
+                const request = {
+                    id: Date.now(),
+                    type: 'OT',
+                    userId: db.currentUser.id,
+                    userName: db.currentUser.name,
+                    status: 'Pending',
+                    details: { hours, bank, district, date, time }
+                };
+
+                db.requests.push(request);
+                db.save();
+                alert('OT Request Submitted for Approval');
+                router.navigate('dashboard');
+            },
+
+            submitLeave: (e) => {
+                e.preventDefault();
+                const district = document.getElementById('leave-district').value;
+                const days = parseInt(document.getElementById('leave-days').value);
+
+                if (days > db.currentUser.leave_balance) {
+                    alert('Insufficient leave balance!');
+                    return;
+                }
+
+                const request = {
+                    id: Date.now(),
+                    type: 'Leave',
+                    userId: db.currentUser.id,
+                    userName: db.currentUser.name,
+                    status: 'Pending',
+                    details: { district, days }
+                };
+
+                db.requests.push(request);
+                db.save();
+                alert('Leave Request Submitted for Approval');
+                router.navigate('dashboard');
+            },
+
+            updateRequestStatus: (reqId, status) => {
+                const req = db.requests.find(r => r.id === reqId);
+                if (!req) return;
+
+                req.status = status;
+
+                // Update balances if approved
+                if (status === 'Approved') {
+                    const user = db.users.find(u => u.id === req.userId);
+                    if (user) {
+                        if (req.type === 'OT') {
+                            user.ot_balance += req.details.hours;
+                        } else if (req.type === 'Leave') {
+                            user.leave_balance -= req.details.days;
+                        }
+                    }
+                }
+
+                db.save();
+                router.renderAdmin(); // Re-render table
+            }
+        };
+
+        // --- ROUTER & UI ---
+        const router = {
+            navigate: (viewId) => {
+                // Hide all views
+                document.querySelectorAll('.view').forEach(el => el.classList.add('hidden'));
+                // Show target view
+                document.getElementById(`view-${viewId}`).classList.remove('hidden');
+
+                // Navbar visibility
+                const nav = document.getElementById('navbar');
+                if (viewId === 'login' || viewId === 'register') {
+                    nav.classList.add('hidden');
+                } else {
+                    nav.classList.remove('hidden');
+                    router.updateNavbar();
+                }
+
+                // Pre-fill forms if needed
+                if (viewId === 'ot-form' || viewId === 'ot') { // Handle alias
+                    document.getElementById('view-ot-form').classList.remove('hidden');
+                    document.getElementById('view-dashboard').classList.add('hidden'); // Ensure dash is hidden
+                    document.getElementById('ot-id').value = db.currentUser.id;
+                }
+                if (viewId === 'leave-form' || viewId === 'leave') { // Handle alias
+                    document.getElementById('view-leave-form').classList.remove('hidden');
+                    document.getElementById('view-dashboard').classList.add('hidden');
+                    document.getElementById('leave-name').value = db.currentUser.name;
+                    document.getElementById('leave-id').value = db.currentUser.id;
+                }
+
+                if (viewId === 'dashboard') router.renderDashboard();
+                if (viewId === 'admin') router.renderAdmin();
+            },
+
+            updateNavbar: () => {
+                const adminLink = document.getElementById('nav-admin-link');
+                if (db.currentUser && db.currentUser.role === 'admin') {
+                    adminLink.classList.remove('hidden');
+                } else {
+                    adminLink.classList.add('hidden');
+                }
+            },
+
+            renderDashboard: () => {
+                if (!db.currentUser) return;
+                // Refresh user data from DB in case it changed
+                const freshUser = db.users.find(u => u.id === db.currentUser.id);
+                db.currentUser = freshUser;
+
+                document.getElementById('dash-name').textContent = freshUser.name;
+                document.getElementById('dash-ot').textContent = freshUser.ot_balance;
+                document.getElementById('dash-leave').textContent = freshUser.leave_balance;
+
+                // Render My Requests
+                const myReqs = db.requests.filter(r => r.userId === freshUser.id).reverse();
+                const tbody = document.getElementById('my-requests-table');
+                tbody.innerHTML = myReqs.length ? '' : '<tr><td colspan="3" class="p-4 text-slate-400">No requests found.</td></tr>';
+
+                myReqs.forEach(r => {
+                    let statusColor = 'text-yellow-600 bg-yellow-50';
+                    if (r.status === 'Approved') statusColor = 'text-green-600 bg-green-50';
+                    if (r.status === 'Rejected') statusColor = 'text-red-600 bg-red-50';
+
+                    const row = `
+                        <tr class="hover:bg-slate-50">
+                            <td class="p-4 font-medium text-slate-700">${r.type}</td>
+                            <td class="p-4 text-slate-500">${new Date(r.id).toLocaleDateString()}</td>
+                            <td class="p-4"><span class="px-2 py-1 rounded text-xs font-bold uppercase ${statusColor}">${r.status}</span></td>
+                        </tr>
+                    `;
+                    tbody.innerHTML += row;
+                });
+            },
+
+            renderAdmin: () => {
+                if (!db.currentUser || db.currentUser.role !== 'admin') {
+                    alert('Access Denied');
+                    router.navigate('dashboard');
+                    return;
+                }
+
+                const tbody = document.getElementById('admin-table');
+                const pendingReqs = db.requests.filter(r => r.status === 'Pending');
+
+                tbody.innerHTML = pendingReqs.length ? '' : '<tr><td colspan="5" class="p-4 text-slate-400 text-center">No pending requests.</td></tr>';
+
+                pendingReqs.forEach(r => {
+                    let detailsStr = '';
+                    if (r.type === 'OT') detailsStr = `${r.details.hours}hrs @ ${r.details.bank} (${r.details.district})`;
+                    if (r.type === 'Leave') detailsStr = `${r.details.days} days (${r.details.district})`;
+
+                    const row = `
+                        <tr class="bg-white border-b border-slate-50 hover:bg-slate-50">
+                            <td class="p-4 font-medium text-slate-800">
+                                ${r.userName}<br>
+                                <span class="text-xs text-slate-400">${r.userId}</span>
+                            </td>
+                            <td class="p-4 text-slate-600 font-semibold">${r.type}</td>
+                            <td class="p-4 text-sm text-slate-600">${detailsStr}</td>
+                            <td class="p-4"><span class="text-yellow-600 bg-yellow-50 px-2 py-1 rounded text-xs font-bold">Pending</span></td>
+                            <td class="p-4 text-right space-x-2">
+                                <button onclick="app.updateRequestStatus(${r.id}, 'Approved')" class="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 text-sm shadow">Approve</button>
+                                <button onclick="app.updateRequestStatus(${r.id}, 'Rejected')" class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-sm shadow">Reject</button>
+                            </td>
+                        </tr>
+                    `;
+                    tbody.innerHTML += row;
+                });
+
+                // Render Users Table
+                const usersBody = document.getElementById('admin-users-table');
+                usersBody.innerHTML = '';
+                db.users.forEach(u => {
+                    if (u.role === 'admin') return;
+                    usersBody.innerHTML += `
+                        <tr class="hover:bg-slate-50">
+                            <td class="p-3 font-medium">${u.name}</td>
+                            <td class="p-3 text-slate-500">${u.id}</td>
+                            <td class="p-3 text-slate-500">${u.email}</td>
+                            <td class="p-3 font-bold text-slate-700">${u.ot_balance} hrs</td>
+                            <td class="p-3 font-bold text-slate-700">${u.leave_balance} days</td>
+                        </tr>
+                    `;
+                });
+            },
+
+            init: () => {
+                const savedUser = localStorage.getItem('moti_current_user');
+                if (savedUser) {
+                    db.currentUser = JSON.parse(savedUser);
+                    router.navigate('dashboard');
+                } else {
+                    router.navigate('login');
+                }
+            }
+        };
+
+        // Start App
+        window.onload = router.init;
+    </script>
+</body>
+
+</html>
